@@ -1,0 +1,271 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Dashboard - MedReminder</title>
+  <link rel="stylesheet" href="css/style.css">
+</head>
+<body>
+  <!-- Hamburger -->
+  <button class="hamburger" id="hamburger" onclick="toggleSidebar()">☰</button>
+
+  <!-- Sidebar -->
+  <aside class="sidebar" id="sidebar">
+    <div class="sidebar-header">
+      <div class="s-logo">💊</div>
+      <h2>MedReminder</h2>
+    </div>
+    <nav class="sidebar-nav">
+      <div class="nav-label">Main</div>
+      <a href="index.html"><span class="nav-icon">🏠</span> Home</a>
+      <a href="dashboard.html" class="active"><span class="nav-icon">📊</span> Dashboard</a>
+      <a href="status.html"><span class="nav-icon">🕒</span> Status</a>
+      <a href="add-medicine.html"><span class="nav-icon">➕</span> Add Medicine</a>
+      <a href="medicine-list.html"><span class="nav-icon">💊</span> Medicine List</a>
+      <a href="low-stock.html"><span class="nav-icon">⚠️</span> Low Stock</a>
+      <a href="history.html"><span class="nav-icon">📜</span> History</a>
+    </nav>
+    <div class="sidebar-footer">
+      <div class="user-card">
+        <div class="user-avatar" id="userAvatar">A</div>
+        <div class="user-info">
+          <div class="name" id="userName">Admin</div>
+          <div class="role">User</div>
+        </div>
+        <button class="logout-btn" onclick="logout()" title="Logout">Log Out 🚪</button>
+      </div>
+    </div>
+  </aside>
+
+  <!-- Main Content -->
+  <main class="main-content">
+    <div class="page-header">
+      <h1>👋 Welcome back, <span id="greeting">Admin</span></h1>
+      <p id="dateToday">Loading...</p>
+    </div>
+
+    <!-- Alert Bar for Low Stock -->
+    <div id="alertBar" style="display: none;"></div>
+
+    <!-- Quick Actions -->
+    <div class="quick-actions">
+      <a href="add-medicine.html" class="quick-action-card">
+        <div class="qa-icon" style="background: rgba(108, 99, 255, 0.15);">➕</div>
+        <div class="qa-text">
+          <h4>Add Medicine</h4>
+          <p>Add a new medicine</p>
+        </div>
+      </a>
+      <a href="medicine-list.html" class="quick-action-card">
+        <div class="qa-icon" style="background: rgba(0, 212, 170, 0.15);">📋</div>
+        <div class="qa-text">
+          <h4>View Medicines</h4>
+          <p>Manage your list</p>
+        </div>
+      </a>
+      <a href="history.html" class="quick-action-card">
+        <div class="qa-icon" style="background: rgba(255, 179, 71, 0.15);">📜</div>
+        <div class="qa-text">
+          <h4>View History</h4>
+          <p>Past medicine logs</p>
+        </div>
+      </a>
+    </div>
+
+    <!-- Stats -->
+    <div class="stats-grid" id="statsGrid">
+      <!-- Filled by JS -->
+    </div>
+
+    <!-- Today's Reminders -->
+    <div class="card">
+      <div class="card-header">
+        <h2>⏰ Today's Reminders</h2>
+      </div>
+      <div id="remindersList" class="reminder-list">
+        <!-- Filled by JS -->
+      </div>
+      <div style="margin-top: 20px; text-align: center;">
+        <button class="btn btn-secondary btn-sm" onclick="testPopup()">🧪 Test Reminder Popup</button>
+      </div>
+    </div>
+  </main>
+
+  <!-- EmailJS Library & Logic -->
+  <script src="js/config.js"></script>
+  <script type="text/javascript" src="https://cdn.jsdelivr.net/npm/@emailjs/browser@3/dist/email.min.js"></script>
+  <script src="js/email.js"></script>
+  <script src="js/auth.js"></script>
+  <script src="js/medicine.js"></script>
+  <script src="js/reminder.js"></script>
+  <script>
+    // Auth check
+    if (!requireAuth()) throw new Error('Not authenticated');
+
+    // Request notification permission
+    if ('Notification' in window && Notification.permission !== 'granted') {
+      Notification.requestPermission();
+    }
+
+    // Set user info
+    const user = getCurrentUser();
+    document.getElementById('greeting').textContent = user.name || user.username;
+    document.getElementById('userName').textContent = user.name || user.username;
+    document.getElementById('userAvatar').textContent = (user.name || user.username || 'U')[0].toUpperCase();
+
+    // Date
+    const today = new Date();
+    const options = { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric' };
+    document.getElementById('dateToday').textContent = today.toLocaleDateString('en-US', options);
+
+    // Sidebar toggle for mobile
+    function toggleSidebar() {
+      document.getElementById('sidebar').classList.toggle('open');
+    }
+
+    // Render dashboard
+    function loadDashboard() {
+      const medicines = getMedicines();
+      const reminders = getTodayReminders();
+      const lowStock = getLowStockMedicines();
+      const historyToday = getHistory().filter(h => {
+        const takenDate = new Date(h.takenAt).toDateString();
+        return takenDate === new Date().toDateString();
+      });
+
+      // Stats
+      document.getElementById('statsGrid').innerHTML = `
+        <div class="stat-card">
+          <div class="stat-icon purple">💊</div>
+          <div class="stat-info">
+            <h3>${medicines.length}</h3>
+            <p>Total Medicines</p>
+          </div>
+        </div>
+        <div class="stat-card">
+          <div class="stat-icon green">✅</div>
+          <div class="stat-info">
+            <h3>${historyToday.length}</h3>
+            <p>Taken Today</p>
+          </div>
+        </div>
+        <div class="stat-card">
+          <div class="stat-icon orange">⏳</div>
+          <div class="stat-info">
+            <h3>${reminders.length - historyToday.length > 0 ? reminders.length - historyToday.length : 0}</h3>
+            <p>Pending</p>
+          </div>
+        </div>
+        <div class="stat-card">
+          <div class="stat-icon red">❌</div>
+          <div class="stat-info">
+            <h3>${lowStock.length}</h3>
+            <p>Low Stock</p>
+          </div>
+        </div>
+      `;
+
+      // Low stock alert
+      const alertBar = document.getElementById('alertBar');
+      if (lowStock.length > 0) {
+        const names = lowStock.map(m => m.name).join(', ');
+        alertBar.style.display = 'flex';
+        alertBar.className = 'alert-bar';
+        alertBar.innerHTML = `
+          <span class="alert-icon">⚠️</span>
+          <span class="alert-text"><strong>Low Stock Alert!</strong> ${names} — running low on doses.</span>
+        `;
+      } else {
+        alertBar.style.display = 'none';
+      }
+
+      // Reminders list
+      const remindersList = document.getElementById('remindersList');
+      if (reminders.length === 0) {
+        remindersList.innerHTML = `
+          <div class="empty-state">
+            <div class="empty-icon">📋</div>
+            <h3>No reminders for today</h3>
+            <p>Add medicines with scheduled times to see reminders here.</p>
+          </div>
+        `;
+      } else {
+        remindersList.innerHTML = reminders.map(med => {
+          const times = typeof med.times === 'string' ? med.times.split(',') : (med.times || []);
+          const now = new Date();
+          const nowMins = now.getHours() * 60 + now.getMinutes();
+          
+          return times.map(t => {
+            const timeStr = t.trim();
+            const [th, tm] = timeStr.split(':');
+            const medMins = parseInt(th) * 60 + parseInt(tm);
+            
+            const isTaken = historyToday.some(h => 
+              h.medicineName === med.name && h.scheduledTime === timeStr
+            );
+            
+            let btnHtml = '';
+            if (isTaken) {
+              btnHtml = `<span class="status-badge" style="background-color: #6c757d; color: white; padding: 4px 12px; border-radius: 4px; font-weight: 500;">Already Taken &#10003;</span>`;
+            } else if (nowMins > medMins) {
+              btnHtml = `<span class="status-badge" style="background-color: #ef4444; color: white; padding: 4px 12px; border-radius: 4px; font-weight: 500;">Missed</span>`;
+            } else {
+              btnHtml = `<span class="status-badge" style="background-color: #f59e0b; color: white; padding: 4px 12px; border-radius: 4px; font-weight: 500;">Pending</span>`;
+            }
+
+            return `
+              <div class="reminder-item">
+                <div class="time-badge">${formatTime(timeStr)}</div>
+                <div class="med-info" style="flex: 1;">
+                  <div class="med-name">${med.name}</div>
+                  <div class="med-dosage">${med.dosage || 'As prescribed'} • ${med.quantity} doses left</div>
+                </div>
+                <div style="display: flex; gap: 8px; align-items: center;">
+                  <button class="btn btn-sm" style="background: var(--bg-glass); color: var(--text-primary); border: 1px solid var(--border-glass);" onclick="downloadICS('${med.name}', '${timeStr}', '${med.dosage || 'As prescribed'}')" title="Download Calendar Alarm">📅 Set Alarm</button>
+                  ${btnHtml}
+                </div>
+              </div>
+            `;
+          }).join('');
+        }).join('');
+      }
+    }
+
+    async function takeMed(id, timeStr, btnElement) {
+      if (btnElement) {
+        btnElement.disabled = true;
+        btnElement.innerHTML = "Already Taken &#10003;";
+        btnElement.style.backgroundColor = "#6c757d";
+        btnElement.style.cursor = "not-allowed";
+      }
+      const medicines = getMedicines();
+      const med = medicines.find(m => m.id == id);
+      if (med) {
+        await addToHistory(med, timeStr);
+        showToast('Medicine Taken', med.name + ' marked as taken', 'success');
+        setTimeout(() => loadDashboard(), 1000);
+      }
+    }
+
+    // Sync from server then render
+    syncFromServer().then(() => {
+      loadDashboard();
+    });
+
+    // Also render immediately with local data
+    loadDashboard();
+
+    // Start reminder system
+    startReminders();
+
+    // Test function for popup
+    function testPopup() {
+      const dummyMed = { id: 'test', name: 'Test Medicine', dosage: '1 Tablet', quantity: 10 };
+      showReminderPopup(dummyMed, '12:00');
+      playAlertSound();
+      showToast('Test Triggered', 'Reminder popup displayed', 'info');
+    }
+  </script>
+</body>
+</html>

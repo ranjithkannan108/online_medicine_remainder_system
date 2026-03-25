@@ -1,0 +1,73 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="description" content="Register to MedReminder">
+  <title>Register - MedReminder</title>
+  <link rel="stylesheet" href="css/style.css">
+</head>
+<body style="background: #ffffff;">
+  <div class="login-container">
+    <div class="login-card">
+      <div class="logo">
+        <div class="logo-icon">💊</div>
+        <h1>MedReminder</h1>
+        <p>Create a new account</p>
+      </div>
+
+      <form id="registerForm">
+        <div class="form-group">
+          <label for="name">Full Name</label>
+          <input type="text" id="name" placeholder="Enter your full name" required autocomplete="name">
+        </div>
+        <div class="form-group">
+          <label for="username">Username</label>
+          <input type="text" id="username" placeholder="Choose a username" required autocomplete="username">
+        </div>
+        <div class="form-group">
+          <label for="password">Password</label>
+          <input type="password" id="password" placeholder="Create a password" required autocomplete="new-password">
+        </div>
+        <div id="errorMsg" class="error-msg">Registration failed</div>
+        <button type="submit" class="btn btn-primary btn-full" id="registerBtn">Register</button>
+      </form>
+
+      <div style="text-align: center; margin-top: 20px;">
+        <p style="font-size: 0.85rem; color: var(--gray-500);">Already have an account? <a href="login.html" style="color: var(--primary); font-weight: 500;">Sign in here</a></p>
+      </div>
+      
+      <div style="text-align: center; margin-top: 14px;">
+        <a href="index.html" style="color: #0f766e; font-size: 0.82rem; font-weight: 500;">← Back to Home</a>
+      </div>
+    </div>
+  </div>
+
+  <script src="js/auth.js"></script>
+  <script>
+    redirectIfLoggedIn();
+
+    document.getElementById('registerForm').addEventListener('submit', async function(e) {
+      e.preventDefault();
+      const name = document.getElementById('name').value.trim();
+      const username = document.getElementById('username').value.trim();
+      const password = document.getElementById('password').value;
+      const errorEl = document.getElementById('errorMsg');
+      
+      const btn = document.getElementById('registerBtn');
+      btn.disabled = true;
+      btn.textContent = 'Registering...';
+
+      const result = await register(username, name, password);
+      if (result.success) {
+        window.location.href = 'login.html';
+      } else {
+        errorEl.textContent = result.message;
+        errorEl.classList.add('show');
+        btn.disabled = false;
+        btn.textContent = 'Register';
+      }
+    });
+  </script>
+</body>
+</html>

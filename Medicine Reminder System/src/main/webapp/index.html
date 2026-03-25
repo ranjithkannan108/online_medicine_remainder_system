@@ -1,0 +1,658 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="description" content="MedReminder - Online Medicine Reminder System">
+  <title>MedReminder - Online Medicine Reminder System</title>
+  <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+  <style>
+    *, *::before, *::after { margin: 0; padding: 0; box-sizing: border-box; }
+
+    :root {
+      --teal: #0f766e;
+      --teal-light: #14b8a6;
+      --teal-bg: #f0fdfa;
+      --dark: #1e293b;
+      --text: #475569;
+      --text-light: #94a3b8;
+      --bg: #ffffff;
+      --bg-alt: #f8fafc;
+      --border: #e2e8f0;
+    }
+
+    body {
+      font-family: 'Poppins', sans-serif;
+      color: var(--text);
+      background: var(--bg);
+      line-height: 1.6;
+    }
+
+    a { text-decoration: none; color: inherit; }
+
+    /* Navbar */
+    .navbar {
+      position: fixed;
+      top: 0; left: 0; width: 100%;
+      z-index: 100;
+      background: rgba(255,255,255,0.95);
+      border-bottom: 1px solid var(--border);
+      backdrop-filter: blur(8px);
+    }
+
+    .nav-inner {
+      max-width: 1000px;
+      margin: 0 auto;
+      padding: 0 24px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      height: 64px;
+    }
+
+    .logo {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      font-weight: 700;
+      font-size: 1.15rem;
+      color: var(--teal);
+    }
+
+    .logo-dot {
+      width: 32px; height: 32px;
+      background: var(--teal);
+      border-radius: 8px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      color: white;
+      font-size: 0.9rem;
+    }
+
+    .nav-menu {
+      display: flex;
+      list-style: none;
+      gap: 28px;
+      align-items: center;
+    }
+
+    .nav-menu a {
+      font-size: 0.88rem;
+      font-weight: 500;
+      color: var(--text);
+      transition: color 0.2s;
+    }
+
+    .nav-menu a:hover { color: var(--teal); }
+
+    .nav-cta {
+      background: var(--teal);
+      color: #fff !important;
+      padding: 8px 22px;
+      border-radius: 8px;
+      font-size: 0.85rem;
+      font-weight: 600;
+    }
+
+    .nav-cta:hover { background: var(--teal-light); }
+
+    .menu-toggle {
+      display: none;
+      background: none;
+      border: none;
+      font-size: 1.4rem;
+      cursor: pointer;
+      color: var(--dark);
+    }
+
+    /* Hero */
+    .hero {
+      padding: 140px 24px 80px;
+      background: linear-gradient(170deg, var(--bg) 60%, var(--teal-bg) 100%);
+    }
+
+    .hero-inner {
+      max-width: 1000px;
+      margin: 0 auto;
+      display: flex;
+      align-items: center;
+      gap: 56px;
+    }
+
+    .hero-text { flex: 1; }
+
+    .hero-tag {
+      display: inline-block;
+      background: var(--teal-bg);
+      color: var(--teal);
+      padding: 6px 14px;
+      border-radius: 20px;
+      font-size: 0.78rem;
+      font-weight: 600;
+      margin-bottom: 18px;
+      border: 1px solid #ccfbf1;
+    }
+
+    .hero-text h1 {
+      font-size: 2.8rem;
+      font-weight: 800;
+      line-height: 1.15;
+      color: var(--dark);
+      margin-bottom: 16px;
+    }
+
+    .hero-text h1 em {
+      font-style: normal;
+      color: var(--teal);
+    }
+
+    .hero-text p {
+      font-size: 1rem;
+      color: var(--text);
+      margin-bottom: 28px;
+      max-width: 420px;
+      line-height: 1.7;
+    }
+
+    .hero-btns { display: flex; gap: 12px; }
+
+    .btn {
+      display: inline-block;
+      padding: 12px 28px;
+      border-radius: 8px;
+      font-size: 0.9rem;
+      font-weight: 600;
+      border: none;
+      cursor: pointer;
+      transition: all 0.2s;
+      font-family: inherit;
+    }
+
+    .btn-fill { background: var(--teal); color: #fff; }
+    .btn-fill:hover { background: #0d6b63; }
+
+    .btn-ghost {
+      background: transparent;
+      color: var(--teal);
+      border: 1.5px solid var(--teal);
+    }
+    .btn-ghost:hover { background: var(--teal-bg); }
+
+    .hero-visual {
+      flex: 1;
+      max-width: 400px;
+    }
+
+    .med-preview {
+      background: var(--bg);
+      border: 1px solid var(--border);
+      border-radius: 14px;
+      padding: 20px;
+      box-shadow: 0 4px 20px rgba(0,0,0,0.05);
+    }
+
+    .med-preview-header {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      margin-bottom: 16px;
+      padding-bottom: 12px;
+      border-bottom: 1px solid var(--border);
+    }
+
+    .med-preview-header h3 {
+      font-size: 0.9rem;
+      font-weight: 600;
+      color: var(--dark);
+    }
+
+    .med-preview-header span {
+      font-size: 0.72rem;
+      color: var(--teal);
+      font-weight: 600;
+      background: var(--teal-bg);
+      padding: 3px 10px;
+      border-radius: 12px;
+    }
+
+    .med-row {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      padding: 10px 0;
+      border-bottom: 1px solid #f1f5f9;
+    }
+
+    .med-row:last-child { border-bottom: none; }
+
+    .med-dot {
+      width: 8px; height: 8px;
+      border-radius: 50%;
+      flex-shrink: 0;
+    }
+
+    .med-row-info { flex: 1; }
+    .med-row-info h4 { font-size: 0.82rem; font-weight: 600; color: var(--dark); }
+    .med-row-info p { font-size: 0.7rem; color: var(--text-light); }
+
+    .med-row-time {
+      font-size: 0.72rem;
+      font-weight: 600;
+      color: var(--text);
+    }
+
+    .med-row-check {
+      width: 22px; height: 22px;
+      border-radius: 6px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 0.7rem;
+    }
+
+    /* About */
+    .about {
+      padding: 80px 24px;
+      background: var(--bg);
+    }
+
+    .about-inner {
+      max-width: 1000px;
+      margin: 0 auto;
+    }
+
+    .section-label {
+      font-size: 0.72rem;
+      font-weight: 600;
+      text-transform: uppercase;
+      letter-spacing: 2px;
+      color: var(--teal);
+      margin-bottom: 8px;
+    }
+
+    .section-title {
+      font-size: 1.8rem;
+      font-weight: 700;
+      color: var(--dark);
+      margin-bottom: 12px;
+    }
+
+    .about-cols {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 48px;
+      margin-top: 28px;
+    }
+
+    .about-text p {
+      font-size: 0.9rem;
+      line-height: 1.75;
+      margin-bottom: 12px;
+      color: var(--text);
+    }
+
+    .about-numbers {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 14px;
+    }
+
+    .num-card {
+      background: var(--bg-alt);
+      border: 1px solid var(--border);
+      border-radius: 10px;
+      padding: 20px;
+      text-align: center;
+    }
+
+    .num-card h3 {
+      font-size: 1.5rem;
+      font-weight: 800;
+      color: var(--teal);
+    }
+
+    .num-card p {
+      font-size: 0.75rem;
+      color: var(--text-light);
+      margin-top: 2px;
+    }
+
+    /* Works */
+    .works {
+      padding: 80px 24px;
+      background: var(--bg-alt);
+    }
+
+    .works-inner {
+      max-width: 1000px;
+      margin: 0 auto;
+    }
+
+    .section-desc {
+      font-size: 0.9rem;
+      color: var(--text-light);
+      max-width: 500px;
+    }
+
+    .works-cards {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 18px;
+      margin-top: 32px;
+    }
+
+    .w-card {
+      background: var(--bg);
+      border: 1px solid var(--border);
+      border-radius: 12px;
+      padding: 26px 20px;
+      transition: border-color 0.2s, box-shadow 0.2s;
+    }
+
+    .w-card:hover {
+      border-color: var(--teal-light);
+      box-shadow: 0 4px 16px rgba(20,184,166,0.08);
+    }
+
+    .w-icon {
+      width: 42px; height: 42px;
+      border-radius: 10px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 1.1rem;
+      margin-bottom: 14px;
+      background: var(--teal-bg);
+    }
+
+    .w-card h3 {
+      font-size: 0.92rem;
+      font-weight: 600;
+      color: var(--dark);
+      margin-bottom: 6px;
+    }
+
+    .w-card p {
+      font-size: 0.8rem;
+      color: var(--text-light);
+      line-height: 1.55;
+    }
+
+    /* CTA */
+    .cta {
+      padding: 60px 24px;
+      background: var(--bg);
+    }
+
+    .cta-box {
+      max-width: 1000px;
+      margin: 0 auto;
+      background: var(--teal);
+      border-radius: 16px;
+      padding: 48px 40px;
+      text-align: center;
+      color: white;
+    }
+
+    .cta-box h2 {
+      font-size: 1.6rem;
+      font-weight: 700;
+      margin-bottom: 10px;
+    }
+
+    .cta-box p {
+      font-size: 0.9rem;
+      opacity: 0.85;
+      margin-bottom: 24px;
+    }
+
+    .btn-white {
+      background: white;
+      color: var(--teal);
+      padding: 12px 28px;
+      border-radius: 8px;
+      font-size: 0.9rem;
+      font-weight: 600;
+      display: inline-block;
+      transition: opacity 0.2s;
+    }
+
+    .btn-white:hover { opacity: 0.9; }
+
+    /* Footer */
+    .footer {
+      border-top: 1px solid var(--border);
+      padding: 20px 24px;
+      text-align: center;
+      background: var(--bg);
+    }
+
+    .footer p {
+      font-size: 0.75rem;
+      color: var(--text-light);
+    }
+
+    /* Responsive */
+    @media (max-width: 768px) {
+      .nav-menu {
+        display: none;
+        position: absolute;
+        top: 64px; left: 0; width: 100%;
+        background: var(--bg);
+        flex-direction: column;
+        padding: 16px 24px;
+        gap: 12px;
+        border-bottom: 1px solid var(--border);
+      }
+      .nav-menu.open { display: flex; }
+      .menu-toggle { display: block; }
+
+      .hero-inner { flex-direction: column; text-align: center; gap: 36px; }
+      .hero-text p { max-width: 100%; }
+      .hero-btns { justify-content: center; }
+      .hero-visual { max-width: 100%; }
+      .hero-text h1 { font-size: 2rem; }
+      .hero { padding-top: 110px; }
+
+      .about-cols { grid-template-columns: 1fr; }
+      .works-cards { grid-template-columns: 1fr; }
+      .section-title { font-size: 1.5rem; }
+
+      .cta-box { padding: 32px 20px; }
+      .cta-box h2 { font-size: 1.3rem; }
+    }
+  </style>
+</head>
+<body>
+
+  <!-- Navbar -->
+  <nav class="navbar">
+    <div class="nav-inner">
+      <a href="#home" class="logo">
+        <div class="logo-dot">💊</div>
+        MedReminder
+      </a>
+      <ul class="nav-menu" id="navMenu">
+        <li><a href="#home">Home</a></li>
+        <li><a href="#about">About</a></li>
+        <li><a href="#works">Works</a></li>
+        <li><a href="register.html" class="nav-cta" style="background: var(--teal-light); margin-right: 12px;">Register</a></li>
+        <li id="navAuthArea"><a href="login.html" class="nav-cta">Login</a></li>
+      </ul>
+      <button class="menu-toggle" id="menuToggle">☰</button>
+    </div>
+  </nav>
+
+  <!-- Hero -->
+  <section class="hero" id="home">
+    <div class="hero-inner">
+      <div class="hero-text">
+        <div class="hero-tag">Online Medicine Reminder System</div>
+        <h1>Never Miss a<br><em>Medicine Dose</em> Again</h1>
+        <p>A simple system to manage your medication schedules, receive timely reminders, and keep your health on track.</p>
+        <div class="hero-btns">
+          <a href="login.html" class="btn btn-fill">Get Started</a>
+          <a href="#works" class="btn btn-ghost">See How It Works</a>
+        </div>
+      </div>
+      <div class="hero-visual">
+        <div class="med-preview">
+          <div class="med-preview-header">
+            <h3>Today's Schedule</h3>
+            <span>3 medicines</span>
+          </div>
+          <div class="med-row">
+            <div class="med-dot" style="background: #22c55e;"></div>
+            <div class="med-row-info">
+              <h4>Paracetamol 500mg</h4>
+              <p>After breakfast</p>
+            </div>
+            <div class="med-row-time">8:00 AM</div>
+            <div class="med-row-check" style="background: #f0fdf4; color: #22c55e;">✓</div>
+          </div>
+          <div class="med-row">
+            <div class="med-dot" style="background: #f59e0b;"></div>
+            <div class="med-row-info">
+              <h4>Vitamin D3 1000 IU</h4>
+              <p>After lunch</p>
+            </div>
+            <div class="med-row-time">2:00 PM</div>
+            <div class="med-row-check" style="background: #fffbeb; color: #f59e0b;">⏳</div>
+          </div>
+          <div class="med-row">
+            <div class="med-dot" style="background: #94a3b8;"></div>
+            <div class="med-row-info">
+              <h4>Metformin 500mg</h4>
+              <p>After dinner</p>
+            </div>
+            <div class="med-row-time">8:00 PM</div>
+            <div class="med-row-check" style="background: #f8fafc; color: #94a3b8;">—</div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- About -->
+  <section class="about" id="about">
+    <div class="about-inner">
+      <div class="section-label">About</div>
+      <div class="section-title">What is MedReminder?</div>
+      <div class="about-cols">
+        <div class="about-text">
+          <p>MedReminder is an online medicine reminder system designed to help people — especially the elderly — manage their medication schedules effectively and never miss a dose.</p>
+          <p>Many people forget to take medicines on time, leading to health complications. Our system solves this by sending timely alerts, tracking medicine stock, and maintaining a complete history of doses taken.</p>
+          <p>Built with a clean, accessible interface that works on both desktop and mobile devices.</p>
+        </div>
+        <div class="about-numbers">
+          <div class="num-card">
+            <h3>10K+</h3>
+            <p>Active Users</p>
+          </div>
+          <div class="num-card">
+            <h3>50K+</h3>
+            <p>Reminders Sent</p>
+          </div>
+          <div class="num-card">
+            <h3>99%</h3>
+            <p>On-Time Rate</p>
+          </div>
+          <div class="num-card">
+            <h3>24/7</h3>
+            <p>Always Available</p>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- Works -->
+  <section class="works" id="works">
+    <div class="works-inner">
+      <div class="section-label">Works</div>
+      <div class="section-title">How It Works</div>
+      <div class="section-desc">From adding medicines to receiving reminders — here's what the system does.</div>
+
+      <div class="works-cards">
+        <div class="w-card">
+          <div class="w-icon">🔐</div>
+          <h3>Secure Login</h3>
+          <p>Sign in to access your personal dashboard and medicine schedules.</p>
+        </div>
+        <div class="w-card">
+          <div class="w-icon">📊</div>
+          <h3>Dashboard</h3>
+          <p>See today's reminders, medicine status, and stock alerts at a glance.</p>
+        </div>
+        <div class="w-card">
+          <div class="w-icon">➕</div>
+          <h3>Add Medicines</h3>
+          <p>Enter name, dosage, quantity, timing, and frequency through a simple form.</p>
+        </div>
+        <div class="w-card">
+          <div class="w-icon">⏰</div>
+          <h3>Timely Reminders</h3>
+          <p>Get popup alerts and browser notifications when it's time for your dose.</p>
+        </div>
+        <div class="w-card">
+          <div class="w-icon">📋</div>
+          <h3>Medicine List</h3>
+          <p>View, search, edit, or delete your medicines anytime from one place.</p>
+        </div>
+        <div class="w-card">
+          <div class="w-icon">📜</div>
+          <h3>History Tracking</h3>
+          <p>Review your complete dose history with date filters to track compliance.</p>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- CTA -->
+  <section class="cta">
+    <div class="cta-box">
+      <h2>Ready to Manage Your Medicines?</h2>
+      <p>Sign up and start getting timely reminders — it's free.</p>
+      <a href="login.html" class="btn-white">Get Started Now</a>
+    </div>
+  </section>
+
+  <!-- Footer -->
+  <footer class="footer">
+    <p>&copy; 2026 MedReminder — Online Medicine Reminder System</p>
+  </footer>
+
+  <!-- EmailJS Library & Logic -->
+  <script src="js/config.js"></script>
+  <script type="text/javascript" src="https://cdn.jsdelivr.net/npm/@emailjs/browser@3/dist/email.min.js"></script>
+  <script src="js/email.js"></script>
+  <script src="js/auth.js"></script>
+  <script>
+    document.getElementById('menuToggle').addEventListener('click', function() {
+      const menu = document.getElementById('navMenu');
+      menu.classList.toggle('open');
+      this.textContent = menu.classList.contains('open') ? '✕' : '☰';
+    });
+
+    document.querySelectorAll('a[href^="#"]').forEach(a => {
+      a.addEventListener('click', function(e) {
+        e.preventDefault();
+        const t = document.querySelector(this.getAttribute('href'));
+        if (t) {
+          t.scrollIntoView({ behavior: 'smooth' });
+          document.getElementById('navMenu').classList.remove('open');
+          document.getElementById('menuToggle').textContent = '☰';
+        }
+      });
+    });
+
+    if (isLoggedIn()) {
+      document.getElementById('navAuthArea').innerHTML = `
+        <a href="dashboard.html" style="font-weight: 500; margin-right: 15px;">Dashboard</a>
+        <a href="#" onclick="logout(); return false;" class="nav-cta" style="background: var(--red-500);">Log Out</a>
+      `;
+    }
+  </script>
+</body>
+</html>
